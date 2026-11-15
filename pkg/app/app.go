@@ -238,25 +238,34 @@ func New(cfg *config.Config, appVersion string) (*App, error) {
 				camDID = cam.Nabto.DeviceID
 				camPID = cam.Nabto.ProductID
 			}
+			callbacks := mqtt.Callbacks{
+				SetLampMode:       camBridgeMgr.SetLampState,
+				SetHighlight:      camBridgeMgr.SetHighlight,
+				SetHighlightTime:  camBridgeMgr.SetHighlightTime,
+				SetLowlight:       camBridgeMgr.SetLowlight,
+				SetLowlightTime:   camBridgeMgr.SetLowlightTime,
+				SetPIRSensitivity: camBridgeMgr.SetPIRSensitivity,
+				SetLuxThreshold:   camBridgeMgr.SetLuxThreshold,
+				SetSiren:          camBridgeMgr.SetSiren,
+				SetResolution:     camBridgeMgr.SetResolution,
+				ReconnectSession:  camBridgeMgr.ReconnectSession,
+			}
+			if !isL620 {
+				// The L 625 reports Wi-Fi signal, SD card usage and its own
+				// settings via get_device_info and lets us change them.
+				callbacks.CameraInfo = true
+				callbacks.SetTimestampPosition = camBridgeMgr.SetTimestampPosition
+				callbacks.SetSpeakerVolume = camBridgeMgr.SetSpeakerVolume
+				callbacks.SetDetectMode = camBridgeMgr.SetDetectMode
+			}
 			mqttClient.RegisterCamera(mqtt.CameraDevice{
 				Path:      cam.Path,
 				Name:      cam.Name,
 				DeviceID:  camDID,
 				ProductID: camPID,
 				Model:     modelName,
-				Callbacks: mqtt.Callbacks{
-					SetLampMode:       camBridgeMgr.SetLampState,
-					SetHighlight:      camBridgeMgr.SetHighlight,
-					SetHighlightTime:  camBridgeMgr.SetHighlightTime,
-					SetLowlight:       camBridgeMgr.SetLowlight,
-					SetLowlightTime:   camBridgeMgr.SetLowlightTime,
-					SetPIRSensitivity: camBridgeMgr.SetPIRSensitivity,
-					SetLuxThreshold:   camBridgeMgr.SetLuxThreshold,
-					SetSiren:          camBridgeMgr.SetSiren,
-					SetResolution:     camBridgeMgr.SetResolution,
-					ReconnectSession:  camBridgeMgr.ReconnectSession,
-				},
-				EventBus: camBus,
+				Callbacks: callbacks,
+				EventBus:  camBus,
 			})
 		}
 

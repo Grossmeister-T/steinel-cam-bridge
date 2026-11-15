@@ -35,6 +35,15 @@ type DeviceStatus struct {
 	FirmwareVer    string    `json:"firmware_ver"`
 	Resolution     string    `json:"resolution"`
 	LastSeen       time.Time `json:"last_seen"`
+
+	// Camera-side diagnostics and settings (L 625, from get_device_info).
+	WifiSignal    int    `json:"wifi_signal"`    // 0 - 100 %, 0 = unknown
+	SDFreeMB      int    `json:"sd_free_mb"`     // free space on the SD card
+	SDTotalMB     int    `json:"sd_total_mb"`    // 0 = unknown / no card
+	SDStatus      string `json:"sd_status"`      // e.g. "normal"
+	OSDPosition   int    `json:"osd_position"`   // timestamp overlay: 0 = off, 1-4 = corner, -1 = unknown
+	SpeakerVolume int    `json:"speaker_volume"` // 0 - 100 %, -1 = unknown
+	DetectMode    string `json:"detect_mode"`    // e.g. "ai"
 }
 
 type Listener func(evt EventType, data interface{})
@@ -55,6 +64,8 @@ func NewBus() *Bus {
 			PIRSensitivity: 50,
 			Resolution:     "1080p",
 			LastSeen:       time.Now(),
+			OSDPosition:    -1,
+			SpeakerVolume:  -1,
 		},
 	}
 }

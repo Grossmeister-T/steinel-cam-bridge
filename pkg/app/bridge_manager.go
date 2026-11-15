@@ -184,3 +184,52 @@ func (m *BridgeManager) DebugCommand(cmd, action string, info map[string]interfa
 	}
 	return dc.DebugCommand(cmd, action, info, timeout)
 }
+
+// cameraSettings is implemented by drivers whose camera exposes its own
+// settings (timestamp overlay, speaker volume, detection mode).
+type cameraSettings interface {
+	SetTimestampPosition(position int) error
+	SetSpeakerVolume(percent int) error
+	SetDetectMode(mode string) error
+}
+
+var errNoCameraSettings = errors.New("camera settings are not supported by this camera model")
+
+func (m *BridgeManager) cameraSettings() (cameraSettings, error) {
+	d := m.getDriver()
+	if d == nil {
+		return nil, driver.ErrCameraOffline
+	}
+	cs, ok := d.(cameraSettings)
+	if !ok {
+		return nil, errNoCameraSettings
+	}
+	return cs, nil
+}
+
+// SetTimestampPosition switches the timestamp overlay off (0) or moves it to a corner (1-4).
+func (m *BridgeManager) SetTimestampPosition(position int) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetTimestampPosition(position)
+}
+
+// SetSpeakerVolume sets the volume of the camera's speaker (0-100).
+func (m *BridgeManager) SetSpeakerVolume(percent int) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetSpeakerVolume(percent)
+}
+
+// SetDetectMode sets the camera-side detection mode.
+func (m *BridgeManager) SetDetectMode(mode string) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetDetectMode(mode)
+}

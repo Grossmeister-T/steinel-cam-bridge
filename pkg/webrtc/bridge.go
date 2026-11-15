@@ -328,6 +328,9 @@ func (b *Bridge) Run(ctx context.Context) error {
 
 		// Verify that the camera really delivers the requested resolution
 		go b.runResolutionGuard(sessCtx)
+
+		// Read Wi-Fi signal, SD card usage and camera-side settings
+		go b.runCameraInfoLoop(sessCtx)
 	})
 
 	// 4. Send initial OFFER

@@ -564,3 +564,30 @@ func (d *L625Driver) DebugCommand(cmd, action string, info map[string]interface{
 	}
 	return b.DebugCommand(cmd, action, info, timeout)
 }
+
+// SetTimestampPosition switches the timestamp overlay off (0) or moves it to a corner (1-4).
+func (d *L625Driver) SetTimestampPosition(position int) error {
+	b := d.getBridge()
+	if b == nil {
+		return ErrCameraOffline
+	}
+	return b.SetTimestampPosition(position)
+}
+
+// SetSpeakerVolume sets the volume of the camera's speaker (0-100).
+func (d *L625Driver) SetSpeakerVolume(percent int) error {
+	b := d.getBridge()
+	if b == nil {
+		return ErrCameraOffline
+	}
+	return b.SetSpeakerVolume(percent)
+}
+
+// SetDetectMode sets the camera-side detection mode.
+func (d *L625Driver) SetDetectMode(mode string) error {
+	b := d.getBridge()
+	if b == nil {
+		return ErrCameraOffline
+	}
+	return b.SetDetectMode(mode)
+}
