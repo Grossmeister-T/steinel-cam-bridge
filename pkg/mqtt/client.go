@@ -46,6 +46,13 @@ type Callbacks struct {
 	SetTimestampPosition func(position int) error
 	SetSpeakerVolume     func(percent int) error
 	SetDetectMode        func(mode string) error
+
+	SetPixelChangeDetection func(on bool) error
+	SetDrawFrame            func(on bool) error
+	SetAIPersonSensitivity  func(level int) error
+	SetRecordMode           func(mode int) error
+	InstallUpdate           func(target string) error
+	RebootCamera            func() error
 }
 
 // CameraDevice represents an individual camera's metadata, control hooks, and event bus for MQTT.

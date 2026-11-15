@@ -22,21 +22,23 @@ const (
 
 const cameraInfoInterval = 60 * time.Second
 
-// runCameraInfoLoop asks the camera SoC for its device info right after the
-// session is up and then once a minute. The reply carries the Wi-Fi signal,
-// SD card usage, firmware version and the camera-side settings (timestamp
-// overlay, speaker volume, detection mode).
+// runCameraInfoLoop asks the camera SoC for its device info and its detection
+// and recording settings right after the session is up and then once a
+// minute. The replies carry the Wi-Fi signal, SD card usage, firmware version
+// and update offer, and the camera-side settings.
 func (b *Bridge) runCameraInfoLoop(ctx context.Context) {
 	ticker := time.NewTicker(cameraInfoInterval)
 	defer ticker.Stop()
 
 	b.requestCameraInfo()
+	b.requestDetectionSettings()
 	for {
 		select {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
 			b.requestCameraInfo()
+			b.requestDetectionSettings()
 		}
 	}
 }
@@ -50,7 +52,12 @@ func (b *Bridge) requestCameraInfo() {
 // refreshCameraInfoSoon re-reads the device info shortly after a setting was
 // changed, so the reported state reflects what the camera really stored.
 func (b *Bridge) refreshCameraInfoSoon() {
-	time.AfterFunc(1500*time.Millisecond, b.requestCameraInfo)
+	afterSettingDelay(b.requestCameraInfo)
+}
+
+// afterSettingDelay runs fn once the camera has had time to store a change.
+func afterSettingDelay(fn func()) {
+	time.AfterFunc(1500*time.Millisecond, fn)
 }
 
 // onDeviceInfo stores the content of a get_device_info reply in the device status.
@@ -96,6 +103,7 @@ func applyDeviceInfo(st *events.DeviceStatus, info map[string]interface{}) {
 			st.DetectMode = mode
 		}
 	}
+	applyUpdateInfo(st, info)
 }
 
 // jsonInt reads a JSON number (decoded as float64) as int.

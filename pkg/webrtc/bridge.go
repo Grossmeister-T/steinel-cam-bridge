@@ -34,7 +34,6 @@ type Bridge struct {
 	audioSSRC        uint32
 	videoTrack       *pion.TrackRemote
 	lastVideoPacket  atomic.Int64
-	motionResetTimer *time.Timer
 	sdcardManager    *SDCardManager
 	resetReason      atomic.Uint32
 	recoveryTimeout  time.Duration

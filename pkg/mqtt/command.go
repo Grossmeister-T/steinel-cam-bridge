@@ -44,6 +44,9 @@ func (c *Client) handleCommand(_ paho.Client, msg paho.Message) {
 	if c.handleCameraSettingsCommand(topic, payload, baseTopic, cb) {
 		return
 	}
+	if c.handleCameraControlsCommand(topic, payload, baseTopic, cb) {
+		return
+	}
 
 	switch {
 	case strings.HasSuffix(topic, "/highlight/set"), strings.HasSuffix(topic, "/light/brightness/set"):

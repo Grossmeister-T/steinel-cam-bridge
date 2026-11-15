@@ -257,6 +257,12 @@ func New(cfg *config.Config, appVersion string) (*App, error) {
 				callbacks.SetTimestampPosition = camBridgeMgr.SetTimestampPosition
 				callbacks.SetSpeakerVolume = camBridgeMgr.SetSpeakerVolume
 				callbacks.SetDetectMode = camBridgeMgr.SetDetectMode
+				callbacks.SetPixelChangeDetection = camBridgeMgr.SetPixelChangeDetection
+				callbacks.SetDrawFrame = camBridgeMgr.SetDrawFrame
+				callbacks.SetAIPersonSensitivity = camBridgeMgr.SetAIPersonSensitivity
+				callbacks.SetRecordMode = camBridgeMgr.SetRecordMode
+				callbacks.InstallUpdate = camBridgeMgr.InstallUpdate
+				callbacks.RebootCamera = camBridgeMgr.RebootCamera
 			}
 			mqttClient.RegisterCamera(mqtt.CameraDevice{
 				Path:      cam.Path,

@@ -186,11 +186,17 @@ func (m *BridgeManager) DebugCommand(cmd, action string, info map[string]interfa
 }
 
 // cameraSettings is implemented by drivers whose camera exposes its own
-// settings (timestamp overlay, speaker volume, detection mode).
+// settings (timestamp overlay, speaker volume, detection, recording, update).
 type cameraSettings interface {
 	SetTimestampPosition(position int) error
 	SetSpeakerVolume(percent int) error
 	SetDetectMode(mode string) error
+	SetPixelChangeDetection(on bool) error
+	SetDrawFrame(on bool) error
+	SetAIPersonSensitivity(level int) error
+	SetRecordMode(mode int) error
+	InstallUpdate(target string) error
+	RebootCamera() error
 }
 
 var errNoCameraSettings = errors.New("camera settings are not supported by this camera model")
@@ -232,4 +238,58 @@ func (m *BridgeManager) SetDetectMode(mode string) error {
 		return err
 	}
 	return cs.SetDetectMode(mode)
+}
+
+// SetPixelChangeDetection switches the lamp's "Pixel Change Detection" (light reacts to picture changes).
+func (m *BridgeManager) SetPixelChangeDetection(on bool) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetPixelChangeDetection(on)
+}
+
+// SetDrawFrame switches the detection boxes burnt into the picture on or off.
+func (m *BridgeManager) SetDrawFrame(on bool) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetDrawFrame(on)
+}
+
+// SetAIPersonSensitivity sets the person detection sensitivity (2, 5 or 7).
+func (m *BridgeManager) SetAIPersonSensitivity(level int) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetAIPersonSensitivity(level)
+}
+
+// SetRecordMode chooses what makes the camera record to its SD card (2, 3 or 4).
+func (m *BridgeManager) SetRecordMode(mode int) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.SetRecordMode(mode)
+}
+
+// InstallUpdate starts an update the camera offers ("camera" or "mcu").
+func (m *BridgeManager) InstallUpdate(target string) error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.InstallUpdate(target)
+}
+
+// RebootCamera restarts the camera SoC.
+func (m *BridgeManager) RebootCamera() error {
+	cs, err := m.cameraSettings()
+	if err != nil {
+		return err
+	}
+	return cs.RebootCamera()
 }
