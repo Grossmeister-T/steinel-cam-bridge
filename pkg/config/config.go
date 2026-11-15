@@ -78,6 +78,9 @@ type Config struct {
 	// HoldLastFrameSeconds repeats the last keyframe for this many seconds
 	// while the camera is away (0 = off), so clients keep their session.
 	HoldLastFrameSeconds int
+	// DebugAPI enables POST /api/debug/command, which passes raw commands to
+	// the camera. Off by default; meant for firmware exploration only.
+	DebugAPI bool
 }
 
 // NewDefaultConfig returns a Config initialized with Layer 1 (code) defaults.
@@ -220,6 +223,7 @@ func LoadHomeAssistantOptionsFromPath(path string, cfg *Config) {
 		CacheDir                     string         `json:"cache_dir"`
 		InstantStart                 *bool          `json:"instant_start"`
 		HoldLastFrameSeconds         *int           `json:"hold_last_frame_seconds"`
+		DebugAPI                     bool           `json:"debug_api"`
 	}
 
 	if err := json.Unmarshal(data, &opts); err != nil {
@@ -325,6 +329,9 @@ func LoadHomeAssistantOptionsFromPath(path string, cfg *Config) {
 	}
 	if opts.HoldLastFrameSeconds != nil && *opts.HoldLastFrameSeconds >= 0 {
 		cfg.HoldLastFrameSeconds = *opts.HoldLastFrameSeconds
+	}
+	if opts.DebugAPI {
+		cfg.DebugAPI = true
 	}
 
 	for _, raw := range opts.Cameras {
@@ -543,6 +550,9 @@ func Resolve(optionsPath string, fs *flag.FlagSet) *Config {
 	}
 	if v := strings.ToLower(os.Getenv("INSTANT_START")); v != "" {
 		cfg.InstantStart = v == "true" || v == "1"
+	}
+	if v := strings.ToLower(os.Getenv("DEBUG_API")); v == "true" || v == "1" {
+		cfg.DebugAPI = true
 	}
 	if v := os.Getenv("HOLD_LAST_FRAME_SECONDS"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n >= 0 {

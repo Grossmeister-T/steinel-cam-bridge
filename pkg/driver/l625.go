@@ -2,6 +2,7 @@ package driver
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sync"
@@ -552,4 +553,14 @@ func (d *L625Driver) SetSystemDateAndTime(t time.Time, tz string) error {
 		return ErrCameraOffline
 	}
 	return b.SetSystemDateAndTime(t, tz)
+}
+
+// DebugCommand sends a raw JSON command to the camera and returns its replies
+// (credentials removed). Used by the optional diagnostic API.
+func (d *L625Driver) DebugCommand(cmd, action string, info map[string]interface{}, timeout time.Duration) ([]json.RawMessage, error) {
+	b := d.getBridge()
+	if b == nil {
+		return nil, ErrCameraOffline
+	}
+	return b.DebugCommand(cmd, action, info, timeout)
 }
