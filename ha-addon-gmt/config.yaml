@@ -1,6 +1,6 @@
 name: "Steinel CAM Bridge GMT"
 description: "Eigener Fork der Steinel CAM Bridge: Sofortbild, Standbild bei Aussetzern, echte Auflösung, Ton abschaltbar, Grundlicht-Schalter"
-version: "1.5.2-beta.11-gmt.4"
+version: "1.5.2-beta.11-gmt.5"
 slug: "steinel_cam_bridge_gmt"
 url: "https://github.com/Afrouper/steinel-cam-bridge"
 panel_icon: "mdi:cctv"

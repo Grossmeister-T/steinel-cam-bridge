@@ -23,6 +23,13 @@ Ziel des Forks: schnelles Bild am Dashboard und lückenlose Aufnahmen auf dem NA
 | Lautsprecher | nicht einstellbar | Zahl „Lautsprecher Lautstärke“ (0–100 %) |
 | Rahmen im Bild | Kamera zeichnet Erkennungsrahmen ins Video (rot = Person, grün = Bewegungsbereich), in der App nicht abschaltbar | Auswahl „Kamera-Erkennung“: „KI-Erkennung“ (`mode: "ai"`, Auslieferung) oder „Aus“ (`mode: "off"`, keine Rahmen) |
 | Diagnose | – | Option `debug_api`: `POST /api/debug/command` schickt einzelne Befehle an die Kamera, Antworten ohne Zugangsdaten |
+| Bewegung aus dem Leuchten-Status | Bit 0/1 des „tuxing“-Werts gelten als Bewegung („PIR Sensor“ / „Kamera-Bilderkennung“) | Die Bits sind laut App Einstellungen („Pixel Change Detection“, „Image Photosensitive Detection“). Der Fork wertet sie nicht mehr als Bewegung; mit eingeschalteter Pixel-Erkennung meldete das Original sonst alle 30 s Bewegung. |
+| Licht bei Bildänderung | – | Schalter „Licht bei Bildänderung“ (MCU `5A0202 00/01`, Zustand aus Bit 0 des Leuchten-Status) |
+| Erkennungsrahmen | nur über den Erkennungsmodus | Schalter „Erkennungsrahmen im Bild“ (`set_detect_data`, `action: "draw_frame"`); die Erkennung selbst läuft weiter |
+| Personenerkennung | – | Auswahl „Personenerkennung Empfindlichkeit“: Niedrig/Mittel/Hoch = `ai_person` 2/5/7 wie der Regler der App |
+| SD-Aufnahme | – | Auswahl „SD-Aufnahme“: Keine Aufnahme / Bewegung durch Kamera / Kamera oder Bewegungsmelder = `mode` 4/2/3 (`set_record_setting`, `action: "all"`, `record_time` 30 wie die App) |
+| Firmware-Update | – | Update-Entitäten „Kamera-Firmware“ und „Leuchten-Firmware“ aus `get_device_info`. Installieren schickt den Befehl der App (`reboot` mit `do_update_check: true` bzw. `set_ota` `type: "mcu"`), aber nur, wenn die Kamera selbst ein Update meldet. |
+| Neustart | – | Knopf „Kamera neu starten“ (`reboot`, `do_update_check: false`) |
 
 ## Befehle der Kamera (L 625, Firmware 0.1.2.31)
 
@@ -35,7 +42,11 @@ Ermittelt am 15.11.2026 über die Diagnose-Schnittstelle. Alle gehen als JSON ü
 | `get_volume_setting` / `set_volume_setting` | `volume` 0–100 |
 | `get_detect_setting` / `set_detect_setting` | `mode` (Auslieferung `"ai"`), `od_enable`. Setzen mit `action: "mode"`. Die Firmware speichert jeden Text ungeprüft, auch erfundene Werte. |
 | `get_video_setting` | Hauptstrom H.265 2K 2560 kbit/s, `sub1` H.264 1080p 2048 kbit/s (Strom der Bridge), `sub2` MJPEG 360p; `environment`, `image`, `lightmode`, `lightenc` |
-| `get_record_setting` | `auto_rec`, `mode`, `record_time` |
+| `get_record_setting` / `set_record_setting` | `auto_rec`, `mode` (4 = keine Aufnahme, 2 = Kamera, 3 = Kamera oder Bewegungsmelder), `record_time`. Setzen mit `action: "all"`. |
+| `get_detect_data` / `set_detect_data` | `ai_person` (App: 2/5/7), `ai_pet`, `ai_vehicle` (App setzt beide bei jedem Verbinden auf 0), `ai_fd`, `software_motion`, `pir`, `voice`, `draw_frame`, `roi`/`roni` (je 5 Rechtecke). Setzen mit `action` = Feldname (`draw_frame`, `ai_person`, …) oder `all`. |
+| `get_privacy_mask` / `set_privacy_mask` | `mask.box0`–`box2` (Rechtecke); im Fork noch nicht verwendet |
+| `reboot` | `info.do_update_check`: `true` = neu starten und Update holen (ohne Angebot antwortet die Kamera „success“, startet aber nicht neu), `false` = neu starten |
+| `set_ota` | `info.type: "mcu"`, `url: "null"`: Leuchten-Update (App, nur bei Angebot) |
 | `get_notification_setting` | `enable` |
 | `get_schedule_setting` | `enable`, `list` |
 
@@ -73,12 +84,16 @@ An der echten Lampe (15.11.2026, lokale HA-App auf dem Pi):
 - Zeitstempel: über Home Assistant auf „Unten rechts“ gestellt, Lampe meldet Position 4, Uhr steht im Bild unten rechts; danach zurück auf „Oben links“.
 - Lautstärke: per Diagnose-Schnittstelle 79 gesetzt und zurückgelesen, dann wieder 80. Die Zahl-Entität selbst ist nicht geschaltet worden.
 - Rahmen: Im Modus `"ai"` bekommt eine Person einen roten Rahmen (Beobachtung des Besitzers, mehrfach), ein vorbeifahrendes Auto in einer Aufnahme keinen. Im Modus `"off"` lief um 17:56 eine Person durchs Bild: in 17 gespeicherten Bildern dieser 10 Sekunden kein Rahmen, vom Besitzer am Dashboard bestätigt. Ein Lichtwechsel des Flutlichts löst in keinem Modus einen Rahmen aus (je 48 Bilder).
+- gmt.5 (19:14): alle neuen Entitäten zeigen die Werte der Lampe. Rahmen-Schalter, Personen-Empfindlichkeit (Mittel) und SD-Aufnahme (Kamera oder Bewegungsmelder) über Home Assistant gesetzt und direkt bei der Lampe zurückgelesen (`draw_frame` 1, `ai_person` 5, `mode` 3), danach zurückgestellt. „Licht bei Bildänderung“ ein: Leuchte meldet das Bit im nächsten Status, Bewegung bleibt aus; danach wieder aus. Update-Entitäten: 0.1.2.31 / 1.5 ohne Angebot. Ob `draw_frame` 0 die Rahmen wirklich ausblendet, ist am Bild noch nicht gesehen (Erkennung steht auf „Aus“).
+- Knopf „Kamera neu starten“ (19:17:55): Lampe 18 s ohne Ping, Bridge hielt ab 19:17:57 das letzte Bild („holding last picture“), wartete die 60-s-Pause ab und lief um 19:19:14 wieder live („Live video resumed“, 1920×1080); die HA-Kamera zeigte danach ohne Neuladen ein aktuelles Bild. Damit ist auch das Standbild bei einem echten Ausfall der Lampe einmal gesehen.
+- Update-Check mit `reboot` + `do_update_check: true` (18:57, über die Diagnose-Schnittstelle): Antwort „success“, kein Neustart, kein Angebot.
 - Nicht geklärt: ob `"off"` auch die Ereignis-Aufnahmen auf die SD-Karte abstellt. Zwischen 17:41 und 17:58 entstand gar kein SD-Ereignis, auch nicht beim Lauf im Modus `"ai"` gegen 17:54, deshalb sagt der Vergleich nichts aus. Die anderen ausprobierten Moduswerte (`pir`, `motion`, `md`) wurden gespeichert, aber nicht am Bild geprüft.
 
 ## Nicht geprüft
 
 - Verzögerung am Dashboard (WebRTC über go2rtc) mit Sofortbild. Der Zuschauer bekommt bis zu 2 s ältere Bilder auf einen Schlag; ob der Browser das sofort aufholt, muss am Tablet oder im Browser gemessen werden. Falls nicht: `instant_start: false`.
-- Standbild und durchgehender Strom bei einem echten Lampenausfall (bisher keiner aufgetreten).
+- Standbild bei einem langen Ausfall (länger als `hold_last_frame_seconds`); gesehen ist bisher nur ein Neustart von 79 s.
+- Installieren über die Update-Entitäten (die Lampe bietet derzeit nichts an).
 - Auflösungswächter im Fehlerfall (Lampe liefert etwas anderes als angefragt).
 - `audio_codec: none` an der Lampe, in HA und in Surveillance Station.
 - Bewegungskorrektur mit der Sirene.
