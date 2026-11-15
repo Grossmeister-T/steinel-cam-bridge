@@ -28,3 +28,6 @@ data/
 .idea/
 .vscode/
 *.swp
+
+# GMT fork: cross-built bridge binary for the local add-on
+/ha-addon-gmt/steinel-bridge

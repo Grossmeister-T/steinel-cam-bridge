@@ -1,0 +1,85 @@
+configuration:
+  cameras:
+    name: "Cameras (Multi-Camera Mode)"
+    description: "List of multiple Steinel cameras. Allows running multiple cameras simultaneously through a single bridge instance without extra network ports."
+  camera_name:
+    name: "Camera Name"
+    description: "Optional custom display name for the camera in Home Assistant (default: Steinel <Model> (<ID>))."
+  camera_ip:
+    name: "Camera IP Address"
+    description: "The local IPv4 address of your Steinel CAM light (e.g. 192.168.1.100)."
+  camera_mac:
+    name: "Camera MAC Address"
+    description: "Optional custom hardware/MAC address for ONVIF (default: 00:0C:43:00:01:02). Customize when running multiple camera bridges to prevent unique ID conflicts in Home Assistant."
+  camera_type:
+    name: "Camera Model"
+    description: "Camera model type: 'auto' (automatic port detection), 'l625' (L 625 CAM SC / WebRTC), or 'l620' (L 620 CAM / XLED CAM 1 / Sofia)."
+  qr_code:
+    name: "QR Code String (L 625)"
+    description: "The pairing QR code payload from the Steinel app (format: did=...,pid=...,sct=...,pairPwd=...)."
+  reset_pairing:
+    name: "Reset Pairing"
+    description: "Delete stored cryptographic client key and force fresh pairing with the camera."
+  camera_password:
+    name: "Camera Password (L 620)"
+    description: "Password for L 620 CAM authentication."
+  camera_user:
+    name: "Camera Username (L 620)"
+    description: "Username for L 620 CAM (default: admin)."
+  bridge_user:
+    name: "Bridge Username (Access Protection)"
+    description: "Optional username to protect RTSP stream, ONVIF, and Web API. Leave empty for open access without password."
+  bridge_pass:
+    name: "Bridge Password (Access Protection)"
+    description: "Optional password to protect RTSP stream, ONVIF, and Web API."
+  resolution:
+    name: "Video Resolution"
+    description: "Target camera resolution (1080p, 720p, or 360p)."
+  audio_codec:
+    name: "Audio Codec"
+    description: "Audio format of the RTSP/ONVIF stream: 'aac' (transcoded, recommended), 'pcmu' (raw) or 'none' (no audio, no talk-back, video only)."
+  instant_start:
+    name: "Instant start for new viewers"
+    description: "Sends every new RTSP viewer the current keyframe and the frames after it right away instead of waiting up to 2 seconds for the camera's next keyframe."
+  hold_last_frame_seconds:
+    name: "Hold last frame during outages (seconds)"
+    description: "While the camera delivers no video (connection drop) the last keyframe is repeated for this many seconds so Home Assistant and recorders stay connected and resume without reconnecting. After that the stream goes silent so a real outage is noticed. 0 disables it. L 625 only."
+  debug_api:
+    name: "Diagnostic API"
+    description: "Enables POST /api/debug/command, which passes single commands straight to the camera (L 625 only). Switch on for troubleshooting only and off again afterwards."
+  rtsp_port:
+    name: "RTSP Port"
+    description: "Port for the integrated RTSP server (default: 8554)."
+  onvif_port:
+    name: "ONVIF & REST Port"
+    description: "Port for the integrated ONVIF and SD card REST API server (default: 8000)."
+  sdcard_sync_interval:
+    name: "SD Card Sync Interval"
+    description: "Interval in seconds to check the camera's MicroSD card for new recordings (default: 120s, 0 disables periodic checks)."
+  sdcard_download_rate_limit_kbps:
+    name: "SD Card Download Rate Limit (KB/s)"
+    description: "Maximum bandwidth in KB/s when downloading SD-card video recordings into local cache (default: 400 KB/s). Protects camera SoC and live RTSP stream from congestion. Set to 0 to disable."
+  cache_recordings:
+    name: "Local Recording Cache"
+    description: "Number of recent recordings to keep in local bridge storage (default: 10, approx. 80–150 MB). Enables instant access, extracts snapshots, and reduces camera stress. Set to 0 to disable."
+  nabto_driver:
+    name: "Nabto Edge Driver (L 625)"
+    description: "Driver engine for L 625 CAM SC: 'cgo' (official C-SDK, recommended & default) or 'pure' (native Go stack, experimental)."
+  log_level:
+    name: "Log Level"
+    description: "Logging verbosity for troubleshooting and diagnostics ('error', 'warning', 'info' (default), 'debug', or 'trace' for detailed control protocol exchanges)."
+  mqtt_broker:
+    name: "MQTT Broker URL"
+    description: "Optional custom MQTT broker URL (e.g. tcp://192.168.1.50:1883). Leave empty to use auto-discovered Home Assistant Mosquitto broker."
+  mqtt_user:
+    name: "MQTT Username"
+    description: "Optional MQTT username."
+  mqtt_password:
+    name: "MQTT Password"
+    description: "Optional MQTT password."
+  mqtt_topic_prefix:
+    name: "MQTT Topic Prefix"
+    description: "Base topic prefix for MQTT entities (default: steinel)."
+  mqtt_discovery_prefix:
+    name: "MQTT Discovery Prefix"
+    description: "Home Assistant MQTT Auto-Discovery prefix (default: homeassistant)."

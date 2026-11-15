@@ -1,0 +1,85 @@
+configuration:
+  cameras:
+    name: "Kameras (Multi-Kamera-Betrieb)"
+    description: "Liste mehrerer Steinel Kameras. Ermöglicht den gleichzeitigen Betrieb mehrerer Kameras über eine einzige Bridge-Instanz ohne zusätzliche Ports."
+  camera_name:
+    name: "Kamera-Name"
+    description: "Optionaler benutzerdefinierter Anzeigename der Kamera in Home Assistant (Standard: Steinel <Modell> (<ID>))."
+  camera_ip:
+    name: "Kamera IP-Adresse"
+    description: "Die lokale IPv4-Adresse der Steinel CAM Leuchte im Heimnetzwerk (z. B. 192.168.1.100)."
+  camera_mac:
+    name: "Kamera MAC-Adresse"
+    description: "Optionale benutzerdefinierte Hardware-/MAC-Adresse für ONVIF (Standard: 00:0C:43:00:01:02). Bei mehreren Kameras oder Containern anpassen, um Konflikte in Home Assistant zu vermeiden."
+  camera_type:
+    name: "Kameramodell"
+    description: "Modellauswahl: 'auto' (automatische Erkennung), 'l625' (L 625 CAM SC / WebRTC) oder 'l620' (L 620 CAM / XLED CAM 1 / Sofia)."
+  qr_code:
+    name: "QR-Code String (L 625)"
+    description: "Der Pairing QR-Code Inhalt aus der Steinel Smartphone App (Format: did=...,pid=...,sct=...,pairPwd=...)."
+  reset_pairing:
+    name: "Pairing zurücksetzen"
+    description: "Löscht den gespeicherten Client-Schlüssel und erzwingt ein erneutes Pairing mit der Kamera."
+  camera_password:
+    name: "Kamera Passwort (L 620)"
+    description: "Passwort für die Authentifizierung an der L 620 CAM."
+  camera_user:
+    name: "Kamera Benutzername (L 620)"
+    description: "Benutzername für die L 620 CAM (Standard: admin)."
+  bridge_user:
+    name: "Bridge Benutzername (Zugangsschutz)"
+    description: "Optionaler Benutzername zum Schutz von RTSP-Stream, ONVIF und Web-API. Leer lassen für offenen Zugriff ohne Passwort."
+  bridge_pass:
+    name: "Bridge Passwort (Zugangsschutz)"
+    description: "Optionales Passwort zum Schutz von RTSP-Stream, ONVIF und Web-API."
+  resolution:
+    name: "Videoauflösung"
+    description: "Auflösung des Videostreams (1080p, 720p oder 360p)."
+  audio_codec:
+    name: "Audio-Codec"
+    description: "Audio-Format des RTSP/ONVIF-Streams: 'aac' (transkodiert, empfohlen), 'pcmu' (Rohdaten) oder 'none' (kein Ton, kein Gegensprechen, reiner Videostrom)."
+  instant_start:
+    name: "Sofortbild für neue Zuschauer"
+    description: "Schickt jedem neuen RTSP-Zuschauer sofort das aktuelle Schlüsselbild samt Folgebildern, statt bis zu 2 Sekunden auf das nächste Schlüsselbild der Kamera zu warten."
+  hold_last_frame_seconds:
+    name: "Standbild bei Aussetzern (Sekunden)"
+    description: "Liefert die Kamera kein Bild (Verbindungsabriss), wird das letzte Schlüsselbild so viele Sekunden lang weitergesendet, damit Home Assistant und Rekorder verbunden bleiben und ohne Neuaufbau weiterlaufen. Danach bleibt der Strom still, damit ein echter Ausfall auffällt. 0 schaltet das Standbild ab. Nur L 625."
+  debug_api:
+    name: "Diagnose-Schnittstelle"
+    description: "Schaltet POST /api/debug/command frei, über das einzelne Befehle direkt an die Kamera gehen (nur L 625). Nur zur Fehlersuche einschalten und danach wieder ausschalten."
+  rtsp_port:
+    name: "RTSP-Port"
+    description: "Netzwerkport des integrierten RTSP-Servers (Standard: 8554)."
+  onvif_port:
+    name: "ONVIF & REST Port"
+    description: "Netzwerkport des integrierten ONVIF- und SD-Karten-REST-API-Servers (Standard: 8000)."
+  sdcard_sync_interval:
+    name: "SD-Karten Sync-Intervall"
+    description: "Intervall in Sekunden zur Hintergrundabfrage neuer Aufnahmen von der MicroSD-Karte (Standard: 120s, 0 deaktiviert die zyklische Abfrage)."
+  sdcard_download_rate_limit_kbps:
+    name: "SD-Karten Download-Drosselung (KB/s)"
+    description: "Maximale Bandbreite in KB/s beim Herunterladen von SD-Karten-Aufnahmen in den lokalen Cache (Standard: 400 KB/s). Schützt den Kamera-SoC und den RTSP-Livestream vor Überlastung. 0 deaktiviert die Drosselung."
+  cache_recordings:
+    name: "Lokaler Aufnahme-Cache"
+    description: "Anzahl der jüngsten Aufnahmen, die im lokalen Bridge-Speicher vorgehalten werden (Standard: 10, ca. 80–150 MB). Erlaubt sofortigen Zugriff, extrahiert Snapshots und entlastet die Kamera. 0 deaktiviert den Cache."
+  nabto_driver:
+    name: "Nabto Edge Treiber (L 625)"
+    description: "Treiber für die L 625 CAM SC: 'cgo' (offizielles C-SDK, empfohlen & Standard) oder 'pure' (nativer Go-Stack, experimentell)."
+  log_level:
+    name: "Log-Level"
+    description: "Protokollierungsgrad zur System- und Fehleranalyse ('error', 'warning', 'info' (Standard), 'debug' oder 'trace' für detaillierte Protokollierung der Steuersignale)."
+  mqtt_broker:
+    name: "MQTT Broker URL"
+    description: "Optionale benutzerdefinierte MQTT-Broker-Adresse (z. B. tcp://192.168.1.50:1883). Leer lassen für automatische Erkennung des Home Assistant Mosquitto Brokers."
+  mqtt_user:
+    name: "MQTT Benutzername"
+    description: "Optionaler Benutzername für den MQTT-Broker."
+  mqtt_password:
+    name: "MQTT Passwort"
+    description: "Optionales Passwort für den MQTT-Broker."
+  mqtt_topic_prefix:
+    name: "MQTT Topic-Präfix"
+    description: "Basis-Präfix für MQTT-Topics (Standard: steinel)."
+  mqtt_discovery_prefix:
+    name: "MQTT Discovery-Präfix"
+    description: "Home Assistant Auto-Discovery Präfix (Standard: homeassistant)."
