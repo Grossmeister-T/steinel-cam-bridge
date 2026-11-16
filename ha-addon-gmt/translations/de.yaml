@@ -40,7 +40,7 @@ configuration:
     description: "Audio-Format des RTSP/ONVIF-Streams: 'aac' (transkodiert, empfohlen), 'pcmu' (Rohdaten) oder 'none' (kein Ton, kein Gegensprechen, reiner Videostrom)."
   instant_start:
     name: "Sofortbild für neue Zuschauer"
-    description: "Schickt jedem neuen RTSP-Zuschauer sofort das aktuelle Schlüsselbild samt Folgebildern, statt bis zu 2 Sekunden auf das nächste Schlüsselbild der Kamera zu warten."
+    description: "Schickt jedem neuen RTSP-Zuschauer sofort das aktuelle Schlüsselbild samt Folgebildern, statt bis zu 2 Sekunden auf das nächste Schlüsselbild der Kamera zu warten. Standard aus: Der Zuschauer bekommt bis zu 2 Sekunden Video auf einen Schlag; auf einem Tablet im WLAN wurde das Bild dadurch später flüssig. Sinnvoll für Rekorder und Abnehmer am Kabel."
   hold_last_frame_seconds:
     name: "Standbild bei Aussetzern (Sekunden)"
     description: "Liefert die Kamera kein Bild (Verbindungsabriss), wird das letzte Schlüsselbild so viele Sekunden lang weitergesendet, damit Home Assistant und Rekorder verbunden bleiben und ohne Neuaufbau weiterlaufen. Danach bleibt der Strom still, damit ein echter Ausfall auffällt. 0 schaltet das Standbild ab. Nur L 625."

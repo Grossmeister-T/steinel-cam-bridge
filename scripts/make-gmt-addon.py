@@ -37,7 +37,7 @@ s = sub(r'^slug: ".*"', 'slug: "steinel_cam_bridge_gmt"', s)
 s = sub(r'^arch:\n(  - .*\n)+', "arch:\n  - aarch64\n", s)
 s = sub(r'^environment:\n  IS_BETA: "true"\n', "", s)
 s = sub(r'^image: .*\n', "", s)
-s = sub(r'^  audio_codec: "aac"\n', '  audio_codec: "aac"\n  instant_start: true\n  hold_last_frame_seconds: 300\n  debug_api: false\n', s)
+s = sub(r'^  audio_codec: "aac"\n', '  audio_codec: "aac"\n  instant_start: false\n  hold_last_frame_seconds: 300\n  debug_api: false\n', s)
 s = sub(r'^      audio_codec: "list\(aac\|pcmu\)\?"', '      audio_codec: "list(aac|pcmu|none)?"', s)
 s = sub(r'^  audio_codec: "list\(aac\|pcmu\)"', '  audio_codec: "list(aac|pcmu|none)"\n  instant_start: "bool?"\n  hold_last_frame_seconds: "int(0,3600)?"\n  debug_api: "bool?"', s)
 (dst / "config.yaml").write_text(s, encoding="utf-8", newline="\n")
@@ -57,7 +57,7 @@ extra = {
     "de": (
         '  instant_start:\n'
         '    name: "Sofortbild für neue Zuschauer"\n'
-        '    description: "Schickt jedem neuen RTSP-Zuschauer sofort das aktuelle Schlüsselbild samt Folgebildern, statt bis zu 2 Sekunden auf das nächste Schlüsselbild der Kamera zu warten."\n'
+        '    description: "Schickt jedem neuen RTSP-Zuschauer sofort das aktuelle Schlüsselbild samt Folgebildern, statt bis zu 2 Sekunden auf das nächste Schlüsselbild der Kamera zu warten. Standard aus: Der Zuschauer bekommt bis zu 2 Sekunden Video auf einen Schlag; auf einem Tablet im WLAN wurde das Bild dadurch später flüssig. Sinnvoll für Rekorder und Abnehmer am Kabel."\n'
         '  hold_last_frame_seconds:\n'
         '    name: "Standbild bei Aussetzern (Sekunden)"\n'
         '    description: "Liefert die Kamera kein Bild (Verbindungsabriss), wird das letzte Schlüsselbild so viele Sekunden lang weitergesendet, damit Home Assistant und Rekorder verbunden bleiben und ohne Neuaufbau weiterlaufen. Danach bleibt der Strom still, damit ein echter Ausfall auffällt. 0 schaltet das Standbild ab. Nur L 625."\n'
@@ -69,7 +69,7 @@ extra = {
     "en": (
         '  instant_start:\n'
         '    name: "Instant start for new viewers"\n'
-        '    description: "Sends every new RTSP viewer the current keyframe and the frames after it right away instead of waiting up to 2 seconds for the camera\'s next keyframe."\n'
+        '    description: "Sends every new RTSP viewer the current keyframe and the frames after it right away instead of waiting up to 2 seconds for the camera\'s next keyframe. Off by default: the viewer receives up to 2 seconds of video at once; on a Wi-Fi tablet this delayed smooth playback. Useful for recorders and wired clients."\n'
         '  hold_last_frame_seconds:\n'
         '    name: "Hold last frame during outages (seconds)"\n'
         '    description: "While the camera delivers no video (connection drop) the last keyframe is repeated for this many seconds so Home Assistant and recorders stay connected and resume without reconnecting. After that the stream goes silent so a real outage is noticed. 0 disables it. L 625 only."\n'

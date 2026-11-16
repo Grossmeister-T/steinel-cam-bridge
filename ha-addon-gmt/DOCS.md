@@ -11,7 +11,7 @@ Eigener Fork der Steinel CAM Bridge auf Basis von 1.5.2-beta.10. Was er anders m
 
 ## Zusätzliche Optionen
 
-- `instant_start`: Sofortbild für neue Zuschauer (Standard an).
+- `instant_start`: Sofortbild für neue Zuschauer (Standard aus; auf einem Tablet im WLAN wurde das Bild damit später flüssig).
 - `hold_last_frame_seconds`: Standbild bei Aussetzern in Sekunden, 0 = aus (Standard 300).
 - `audio_codec: none`: reiner Videostrom ohne Ton und ohne Gegensprechen.
 

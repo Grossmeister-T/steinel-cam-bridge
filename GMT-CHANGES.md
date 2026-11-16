@@ -1,6 +1,6 @@
 # GMT-Fork der Steinel CAM Bridge
 
-Stand: 15.11.2026, Version `1.5.2-beta.11-gmt.4`, Zweig `gmt-beta11`.
+Stand: 16.11.2026, Version `1.5.2-beta.11-gmt.6`, Zweig `gmt-beta11`.
 
 Basis ist der Entwicklerzweig `origin/feature/l620-sofia-download` (Commit `b1bb559`), nicht `main`. Der Entwickler pflegt den laufenden Code auf diesem Nebenzweig; `main` bekommt nur die Versionsnummern und Doku der Beta-Veröffentlichungen und steht im Code noch etwa auf beta.5. Ein erster Bau auf `main` (beta.10-gmt.1) hatte deshalb Korrekturen aus beta.6 bis beta.11 verloren, sichtbar an der Dämmerungsschwelle (Rohwert 210 statt 10 lx).
 
@@ -10,7 +10,7 @@ Ziel des Forks: schnelles Bild am Dashboard und lückenlose Aufnahmen auf dem NA
 
 | Thema | Original (beta.11) | Fork |
 |---|---|---|
-| Neuer Zuschauer | wartet bis zu 2 s auf das nächste Schlüsselbild | bekommt sofort das aktuelle Schlüsselbild samt Folgebildern (`instant_start`) |
+| Neuer Zuschauer | wartet bis zu 2 s auf das nächste Schlüsselbild | wahlweise sofort das aktuelle Schlüsselbild samt Folgebildern (`instant_start`, Standard aus) |
 | Lampe liefert kein Bild | Strom reißt ab, Abnehmer melden Fehler und verbinden neu | letztes Schlüsselbild läuft 1×/s weiter, höchstens `hold_last_frame_seconds` (Standard 300) |
 | Neue Kamerasitzung | neue RTP-Zählung mitten im Strom | Strom bleibt durchgehend (feste SSRC, fortlaufende Nummern und Zeitstempel), Weitergabe erst ab einem Schlüsselbild |
 | Auflösung | wird einmal angefragt, nie geprüft; Anzeige = Wunschwert | echte Bildgröße wird aus dem Videostrom gelesen, bei Abweichung erneut angefragt (10 s, 30 s, 60 s, dann 3× alle 5 min); Anzeige = Istwert |
@@ -58,7 +58,7 @@ Aus dem Original übernommen, nicht mehr vom Fork: Nachlaufzeit, Grundlicht-Hell
 
 | Option | Standard | Bedeutung |
 |---|---|---|
-| `instant_start` | `true` | Sofortbild für neue RTSP-Zuschauer |
+| `instant_start` | `false` | Sofortbild für neue RTSP-Zuschauer. Seit gmt.6 Standard aus, siehe „Erfahrung mit dem Sofortbild“. |
 | `hold_last_frame_seconds` | `300` | Standbild bei Aussetzern, 0 = aus (nur L 625) |
 | `audio_codec` | `aac` | neu: `none` |
 | `debug_api` | `false` | Diagnose-Schnittstelle; ohne `"write": true` nur `get_…`-Befehle. Nach Gebrauch wieder ausschalten, sie ist im LAN ohne Passwort erreichbar, solange kein Bridge-Zugangsschutz gesetzt ist. |
@@ -89,9 +89,17 @@ An der echten Lampe (15.11.2026, lokale HA-App auf dem Pi):
 - Update-Check mit `reboot` + `do_update_check: true` (18:57, über die Diagnose-Schnittstelle): Antwort „success“, kein Neustart, kein Angebot.
 - Nicht geklärt: ob `"off"` auch die Ereignis-Aufnahmen auf die SD-Karte abstellt. Zwischen 17:41 und 17:58 entstand gar kein SD-Ereignis, auch nicht beim Lauf im Modus `"ai"` gegen 17:54, deshalb sagt der Vergleich nichts aus. Die anderen ausprobierten Moduswerte (`pir`, `motion`, `md`) wurden gespeichert, aber nicht am Bild geprüft.
 
+## Erfahrung mit dem Sofortbild
+
+Mit `instant_start` bekommt ein neuer Zuschauer in den ersten 250 ms 10 bis 30 Bilder, also 0,7 bis 2,0 s Video (acht frische RTSP-Sitzungen, 16.11.2026); das erste Paket ist immer ein Schlüsselbild. Ohne die Option sind es 2 bis 5 Bilder und kein Schlüsselbild, wie beim Original.
+
+Auf einem Android-Tablet im WLAN (Home-Assistant-Dashboard, go2rtc/WebRTC) wurde das Bild mit Sofortbild später flüssig als ohne; nach dem Abschalten war der Start wieder besser. Das ist der Eindruck des Besitzers am Gerät, auf dem Tablet selbst wurde nichts gemessen. Vermutete Ursache: Das Tablet muss den Schwall erst dekodieren, oder im Schwall gehen im WLAN Pakete verloren und das Bild steht bis zum nächsten Schlüsselbild. Im Browser am PC war kein Nachteil messbar.
+
+Deshalb ist die Option seit gmt.6 im Standard aus. Sinnvoll bleibt sie für Abnehmer, die den Schwall leicht verkraften, etwa Rekorder am Kabel.
+
 ## Nicht geprüft
 
-- Verzögerung am Dashboard (WebRTC über go2rtc) mit Sofortbild. Der Zuschauer bekommt bis zu 2 s ältere Bilder auf einen Schlag; ob der Browser das sofort aufholt, muss am Tablet oder im Browser gemessen werden. Falls nicht: `instant_start: false`.
+- Der Bildstart auf dem Tablet in Zahlen. Mit und ohne Sofortbild liegt nur der Eindruck am Gerät vor (siehe „Erfahrung mit dem Sofortbild“).
 - Standbild bei einem langen Ausfall (länger als `hold_last_frame_seconds`); gesehen ist bisher nur ein Neustart von 79 s.
 - Installieren über die Update-Entitäten (die Lampe bietet derzeit nichts an).
 - Auflösungswächter im Fehlerfall (Lampe liefert etwas anderes als angefragt).
