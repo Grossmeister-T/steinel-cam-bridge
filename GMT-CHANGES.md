@@ -18,7 +18,7 @@ Ziel des Forks: schnelles Bild am Dashboard und lückenlose Aufnahmen auf dem NA
 | Ton | `aac` oder `pcmu` | zusätzlich `none`: reiner Videostrom, kein Mikrofon, kein Gegensprechen |
 | Grundlicht | Helligkeit und Dauer als Zahl | zusätzlich Schalter „Grundlicht“ wie in der App: aus = 0 %, ein = zuletzt eingestellte Helligkeit (nach einem Neustart der Bridge 10 %, bis die Lampe einen Wert meldet) |
 | Bewegungssensor | geht bei jeder Befehlsantwort mit „alarm“ im Text an (z. B. Sirene) | Antworten auf eigene Befehle (`resp`) zählen nicht als Bewegung |
-| Werte der Kamera | Geräteinfo wird nie abgefragt (Firmware leer) | `get_device_info` einmal pro Minute: Sensoren WLAN-Signal (%), SD-Karte frei (GB), SD-Karte Status, Firmware |
+| Werte der Kamera | Geräteinfo wird nie abgefragt (Firmware leer) | `get_device_info` einmal pro Minute: Sensoren WLAN-Signal (%), SD-Karte frei, belegt und Größe (GB), SD-Karte Status, Firmware. Die Kamera nennt für die SD-Werte keine Einheit; 122000 bei einer 128-GB-Karte spricht für Mebibyte, so rechnet der Fork seit gmt.6 um |
 | Zeitstempel im Bild | fest oben links | Schalter „Zeitstempel im Bild“ und Auswahl „Zeitstempel Position“ (vier Ecken) |
 | Lautsprecher | nicht einstellbar | Zahl „Lautsprecher Lautstärke“ (0–100 %) |
 | Rahmen im Bild | Kamera zeichnet Erkennungsrahmen ins Video (rot = Person, grün = Bewegungsbereich), in der App nicht abschaltbar | Auswahl „Kamera-Erkennung“: „KI-Erkennung“ (`mode: "ai"`, Auslieferung) oder „Aus“ (`mode: "off"`, keine Rahmen) |

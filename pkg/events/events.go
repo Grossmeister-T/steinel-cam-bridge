@@ -38,8 +38,8 @@ type DeviceStatus struct {
 
 	// Camera-side diagnostics and settings (L 625, from get_device_info).
 	WifiSignal    int    `json:"wifi_signal"`    // 0 - 100 %, 0 = unknown
-	SDFreeMB      int    `json:"sd_free_mb"`     // free space on the SD card
-	SDTotalMB     int    `json:"sd_total_mb"`    // 0 = unknown / no card
+	SDFreeMB      int    `json:"sd_free_mb"`     // free space on the SD card as reported (MiB)
+	SDTotalMB     int    `json:"sd_total_mb"`    // card size as reported (MiB); 0 = unknown / no card
 	SDStatus      string `json:"sd_status"`      // e.g. "normal"
 	OSDPosition   int    `json:"osd_position"`   // timestamp overlay: 0 = off, 1-4 = corner, -1 = unknown
 	SpeakerVolume int    `json:"speaker_volume"` // 0 - 100 %, -1 = unknown

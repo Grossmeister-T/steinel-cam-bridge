@@ -22,7 +22,7 @@ func TestCameraSettingsState(t *testing.T) {
 
 	// Nothing known yet (fresh bus defaults): nothing is published.
 	c.publishDeviceStatus(dev, events.DeviceStatus{OSDPosition: -1, SpeakerVolume: -1})
-	for _, sub := range []string{"wifi_signal/state", "sd_free/state", "sd_status/state", "firmware/state", "osd_switch/state", "osd_position/state", "volume/state", "detect_mode/state"} {
+	for _, sub := range []string{"wifi_signal/state", "sd_free/state", "sd_used/state", "sd_total/state", "sd_status/state", "firmware/state", "osd_switch/state", "osd_position/state", "volume/state", "detect_mode/state"} {
 		_, ok := mockCl.published["steinel/de-test/"+sub]
 		assert.False(t, ok, sub)
 	}
@@ -32,7 +32,10 @@ func TestCameraSettingsState(t *testing.T) {
 		FirmwareVer: "0.1.2.31", OSDPosition: 3, SpeakerVolume: 80, DetectMode: "ai",
 	})
 	assert.Equal(t, "57", state("wifi_signal/state"))
-	assert.Equal(t, "120.5", state("sd_free/state"))
+	// 122000 MiB is a 128 GB card: 126.3 GB free, 1.59 GB used.
+	assert.Equal(t, "126.3", state("sd_free/state"))
+	assert.Equal(t, "1.59", state("sd_used/state"))
+	assert.Equal(t, "127.9", state("sd_total/state"))
 	assert.Equal(t, "normal", state("sd_status/state"))
 	assert.Equal(t, "0.1.2.31", state("firmware/state"))
 	assert.Equal(t, "ON", state("osd_switch/state"))
@@ -106,7 +109,7 @@ func TestCameraSettingsDiscovery(t *testing.T) {
 		SetTimestampPosition: func(int) error { return nil },
 		SetSpeakerVolume:     func(int) error { return nil },
 	}
-	for _, e := range [][2]string{{"sensor", "wifi_signal"}, {"sensor", "sd_free"}, {"sensor", "sd_status"}, {"sensor", "firmware"}, {"switch", "osd_switch"}, {"select", "osd_position"}, {"number", "volume"}} {
+	for _, e := range [][2]string{{"sensor", "wifi_signal"}, {"sensor", "sd_free"}, {"sensor", "sd_used"}, {"sensor", "sd_total"}, {"sensor", "sd_status"}, {"sensor", "firmware"}, {"switch", "osd_switch"}, {"select", "osd_position"}, {"number", "volume"}} {
 		assert.True(t, has(full, e[0], e[1]), "%s.%s", e[0], e[1])
 	}
 	assert.False(t, has(full, "select", "detect_mode"), "detection mode is only announced when its setter is wired")
